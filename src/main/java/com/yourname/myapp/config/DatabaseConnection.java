@@ -82,7 +82,7 @@ public class DatabaseConnection {
         
         // Load from properties file if found, otherwise from environment variables
         dbUrl = props.getProperty("db.url") != null ? props.getProperty("db.url") : 
-                (System.getenv("DB_URL") != null ? System.getenv("DB_URL") : "jdbc:mysql://localhost:3306/eims_db");
+                (System.getenv("DB_URL") != null ? System.getenv("DB_URL") : "jdbc:mysql://localhost:3306/hr_ooad");
         
         dbUsername = props.getProperty("db.username") != null ? props.getProperty("db.username") : 
                      (System.getenv("DB_USERNAME") != null ? System.getenv("DB_USERNAME") : "root");

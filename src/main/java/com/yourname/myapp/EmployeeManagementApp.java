@@ -55,18 +55,7 @@ public class EmployeeManagementApp extends JFrame {
             // Create main layout
             mainPanel = new JPanel(new BorderLayout());
             
-            // Create sidebar
-            JPanel sidebar = createSidebar();
-            mainPanel.add(sidebar, BorderLayout.WEST);
-            
-            // Create content panel
-            contentPanel = new JPanel(new BorderLayout());
-            mainPanel.add(contentPanel, BorderLayout.CENTER);
-            
-            setContentPane(mainPanel);
-            
-
-            // Initialize views
+            // Initialize views BEFORE creating sidebar (which references them in listeners)
             dashboardView = new DashboardView(employeeService);
             employeeListView = new EmployeeListView(employeeService);
             candidateListView = new CandidateListView();
@@ -77,6 +66,16 @@ public class EmployeeManagementApp extends JFrame {
             payrollDashboardView = new PayrollDashboardView();
             performanceManagementView = new PerformanceManagementView();
             workforcePlanningView = new WorkforcePlanningView();
+            
+            // Create sidebar (uses initialized views)
+            JPanel sidebar = createSidebar();
+            mainPanel.add(sidebar, BorderLayout.WEST);
+            
+            // Create content panel
+            contentPanel = new JPanel(new BorderLayout());
+            mainPanel.add(contentPanel, BorderLayout.CENTER);
+            
+            setContentPane(mainPanel);
 
             // Setup edit callback for employee list view
             employeeListView.setOnEditCallback(() -> {
@@ -288,10 +287,14 @@ public class EmployeeManagementApp extends JFrame {
         refreshButton.setOpaque(true);
         refreshButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         refreshButton.addActionListener(e -> {
-            employeeListView.refresh();
-            dashboardView.refresh();
-            candidateListView.refresh();
-            recruitmentDashboardView.refresh();
+            try {
+                if (employeeListView != null) employeeListView.refresh();
+                if (dashboardView != null) dashboardView.refresh();
+                if (candidateListView != null) candidateListView.refresh();
+                if (recruitmentDashboardView != null) recruitmentDashboardView.refresh();
+            } catch (Exception ex) {
+                logger.error("Error refreshing views", ex);
+            }
         });
 
         JButton exitButton = new JButton("Exit");
@@ -346,29 +349,38 @@ public class EmployeeManagementApp extends JFrame {
      * Switch to a different view
      */
     private void switchToView(Container view, Object viewObject) {
+        if (view == null) {
+            logger.warn("Cannot switch to view: view component is null");
+            return;
+        }
+        
         contentPanel.removeAll();
         contentPanel.add((Component) view, BorderLayout.CENTER);
         contentPanel.revalidate();
         contentPanel.repaint();
 
         // Refresh the view if applicable
-        if (viewObject instanceof DashboardView) {
-            ((DashboardView) viewObject).refresh();
-        } else if (viewObject instanceof EmployeeListView) {
-            ((EmployeeListView) viewObject).refresh();
-        } else if (viewObject instanceof RecruitmentDashboardView) {
-            ((RecruitmentDashboardView) viewObject).refresh();
-        } else if (viewObject instanceof CandidateListView) {
-            ((CandidateListView) viewObject).refresh();
-        }else if (viewObject instanceof OnboardingDashboardView){
-            ((OnboardingDashboardView) viewObject).refresh(); 
-        }
-        else if (viewObject instanceof PayrollDashboardView) {
-            ((PayrollDashboardView) viewObject).repaint();
-        } else if (viewObject instanceof PerformanceManagementView) {
-            ((PerformanceManagementView) viewObject).refresh();
-        } else if (viewObject instanceof WorkforcePlanningView) {
-            ((WorkforcePlanningView) viewObject).refresh();
+        try {
+            if (viewObject instanceof DashboardView) {
+                ((DashboardView) viewObject).refresh();
+            } else if (viewObject instanceof EmployeeListView) {
+                ((EmployeeListView) viewObject).refresh();
+            } else if (viewObject instanceof RecruitmentDashboardView) {
+                ((RecruitmentDashboardView) viewObject).refresh();
+            } else if (viewObject instanceof CandidateListView) {
+                ((CandidateListView) viewObject).refresh();
+            }else if (viewObject instanceof OnboardingDashboardView){
+                ((OnboardingDashboardView) viewObject).refresh(); 
+            }
+            else if (viewObject instanceof PayrollDashboardView) {
+                ((PayrollDashboardView) viewObject).repaint();
+            } else if (viewObject instanceof PerformanceManagementView) {
+                ((PerformanceManagementView) viewObject).refresh();
+            } else if (viewObject instanceof WorkforcePlanningView) {
+                ((WorkforcePlanningView) viewObject).refresh();
+            }
+        } catch (Exception e) {
+            logger.warn("Error refreshing view", e);
         }
     }
 
