@@ -1,0 +1,17 @@
+# Maven
+target/
+
+# Logs
+*.log
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Sensitive Configuration
+src/main/resources/config.properties
