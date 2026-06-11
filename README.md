@@ -1,134 +1,171 @@
-# Employee Information Management System (EIMS) + Recruitment & ATS
+# HR Subsystem – Human Resource Management System
 
-A comprehensive desktop application for managing employee information and recruitment processes built with Java, Swing, MySQL, and Hibernate ORM.
+A comprehensive desktop application for managing HR operations including employee information, recruitment, attendance, payroll, onboarding, benefits, performance management, and workforce planning built with Java, Swing, MySQL, and Hibernate ORM.
 
-## Introduction
+## Table of Contents
 
-EIMS is a comprehensive desktop application designed to manage employee records efficiently. It provides a user-friendly interface for managing employees, including creating, updating, deleting, and viewing employee records with advanced filtering capabilities.
+- [Features](#features)
+- [Technology Stack](#technology-stack)
+- [Project Structure](#project-structure)
+- [Prerequisites](#prerequisites)
+- [Local Database Setup](#local-database-setup)
+- [Build & Run Instructions](#build--run-instructions)
+- [Usage Guide](#usage-guide)
+- [Design Patterns Used](#design-patterns-used)
+- [Troubleshooting](#troubleshooting)
+- [Logging](#logging)
+- [Future Enhancements](#future-enhancements)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
 
 ## Features
 
-### Employee Management Module
-- **Dashboard View**: Display key statistics (total employees, active employees, on-leave, new joiners)
-- **Employee List**: View all employees with filtering by department and employment status
-- **Search Functionality**: Real-time search by employee name
-- **Add Employee**: Create new employee records with auto-generated IDs (EMP-XXXXXXXX format)
-- **Update Employee**: Modify employee information
-- **Delete Employee**: Remove employee records with confirmation
+### 1. Employee Information Management (EIMS)
+- **Dashboard**: Key statistics including total employees, active employees, employees on leave, and new joiners
+- **Employee List**: View all employees with real-time search and filtering by department/employment status
+- **Add/Update/Delete**: Create, modify, or remove employee records
 - **Builder Pattern**: Fluent API for employee object construction
+- **Auto-Generated IDs**: EMP-XXXXXXXX format
 
-### Recruitment & ATS Module (NEW)
-- **Recruitment Dashboard**: Display key recruitment metrics
-  - Total Applications Received
-  - Shortlisted Count
-  - Selected Count
-  - Shortlist Rate (%)
-  - Selection Rate (%)
-  - Open Positions
-- **Candidate List**: Manage recruitment candidates with:
-  - Search functionality by candidate name and contact
-  - Status filter (APPLIED, SHORTLISTED, INTERVIEW, SELECTED, REJECTED, ALL)
-  - Interview score display
-  - Status update capability
-- **Add Candidate**: Create new candidate records with:
-  - Auto-generated Candidate IDs (CND-001 format)
-  - Chain of Responsibility validation (ContactInfo → Resume → Duplicate Check)
-  - User-friendly error messages
-- **Update Candidate**: Modify candidate details
-- **Status Update**: Change candidate status with strict transition validation:
-  - APPLIED → SHORTLISTED, REJECTED
-  - SHORTLISTED → INTERVIEW, SELECTED, REJECTED
-  - INTERVIEW → SELECTED, REJECTED
+### 2. Recruitment & ATS
+- **Recruitment Dashboard**: View recruitment metrics and key performance indicators
+- **Candidate List**: Search and filter candidates by status (APPLIED, SHORTLISTED, INTERVIEW, SELECTED, REJECTED)
+- **Add Candidate**: Create candidates with Chain of Responsibility validation (ContactInfo → Resume → Duplicate Check)
+- **Status Transitions**: Strict state machine enforcing valid transitions:
+  - APPLIED → SHORTLISTED or REJECTED
+  - SHORTLISTED → INTERVIEW, SELECTED, or REJECTED
+  - INTERVIEW → SELECTED or REJECTED
   - SELECTED → REJECTED
   - REJECTED → (no transitions)
+- **Auto-Generated IDs**: CND-XXX format
 
-### Technical Features
-- **Builder Pattern**: Used for employee object construction
-- **Chain of Responsibility Pattern**: Validation pipeline for candidate data
-- **Repository Pattern**: Abstraction layer for data access
-- **Service Layer**: Business logic separation with comprehensive error handling
-- **Custom Exceptions**: Specific exception types for different error scenarios
-- **JPA/Hibernate ORM**: Object-relational mapping for database operations
-- **Centralized Exception Handling**: User-friendly error dialogs throughout the application
-- **Status Transition Validation**: Enforce business rules for candidate status changes
-- **Auto-Generated IDs**: Both employees (EMP-XXXXXXXX) and candidates (CND-XXX)
+### 3. Attendance & Leave
+- **Check-In/Check-Out**: Record attendance with timestamps
+- **Leave Requests**: Submit leave requests with instant filtering (Pending, Approved, Rejected)
+- **Manager Approval**: Approve or reject leave requests based on balance
+- **Leave Balance Tracking**: Display available leave balance per employee
+
+### 4. Payroll Management
+- **Payroll Dashboard**: Overview of payroll operations
+- **Payslip Generation**: Generate payslips for employees
+- **Transfer Confirmation**: Approve payroll transfers
+- **Role-Based Configuration**: SalaryConfigSingleton for MANAGER and ADMIN salary configurations
+
+### 5. Onboarding Management
+- **Onboarding Dashboard**: Track onboarding progress for new hires
+- **Task Tracking**: Monitor onboarding task status and completion
+- **Activity Log**: Maintain historical record of onboarding activities
+- **Command Pattern**: Encapsulate actions (ApproveOnboardingCommand, UpdateBackgroundCheckCommand, UpdateDocumentVerificationCommand) with CommandInvoker for history
+
+### 6. Benefits Administration
+- **Benefits Enrollment**: Manage employee benefits enrollment records
+- **Claims Processing**: Track and process insurance claims
+- **Adapter Pattern**: Unified BenefitPlan with HealthPlanAdapter and InsurancePlanAdapter for different benefit types
+
+### 7. Performance Management
+- **Appraisal Table**: Record and manage employee appraisals
+- **Promotion Tracking**: Track employee promotions
+- **Proxy-Based Access Control**: AppraisalServiceProxy restricts access to MANAGER and ADMIN roles only
+
+### 8. Workforce Planning & Budgeting
+- **Workforce Planning**: Create workforce plans with headcount projections
+- **Budget Forecasting**: Quarterly budget projections and HR cost analysis
+- **Report Export**: Export planning data for further analysis
 
 ## Technology Stack
 
 - **Java 11**: Programming language
 - **Swing**: UI framework for desktop application
-- **Hibernate 6.2.0.Final**: ORM framework
-- **MySQL 8.0**: Database
-- **Maven**: Build tool
-- **Lombok**: Code generation library
+- **Hibernate 6.2**: ORM framework for database operations
+- **MySQL 8.0**: Relational database management system
+- **Maven**: Build automation tool
+- **Lombok**: Java library for reducing boilerplate code
 - **SLF4J + Logback**: Logging framework
-- **Jakarta Persistence API 3.1.0**: JPA specification
 
 ## Project Structure
 
 ```
-ooad-project/
+HR-Management-System/
 ├── src/
 │   ├── main/
 │   │   ├── java/
 │   │   │   └── com/yourname/myapp/
-│   │   │       ├── App.java                          # Application entry point
-│   │   │       ├── EmployeeManagementApp.java        # Main Swing application
-│   │   │       ├── builder/
-│   │   │       │   └── EmployeeBuilder.java          # Builder pattern for Employee
-│   │   │       ├── config/
-│   │   │       │   └── HibernateUtil.java            # Hibernate session factory & config
-│   │   │       ├── dto/
-│   │   │       │   ├── EmployeeRequest.java          # Employee request DTO
-│   │   │       │   └── DashboardStats.java           # Dashboard statistics DTO
-│   │   │       ├── entity/
-│   │   │       │   ├── Employee.java                 # Employee JPA entity
-│   │   │       │   └── EmploymentStatus.java         # Enum for employment status
-│   │   │       ├── exception/
-│   │   │       │   ├── EmployeeNotFoundException.java
-│   │   │       │   └── DuplicateEmployeeIdException.java
-│   │   │       ├── repository/
-│   │   │       │   ├── EmployeeRepository.java       # Repository interface
-│   │   │       │   └── EmployeeRepositoryImpl.java    # Repository implementation
-│   │   │       ├── service/
-│   │   │       │   └── EmployeeService.java          # Employee business logic
-│   │   │       ├── ui/
-│   │   │       │   ├── DashboardView.java            # Employee dashboard UI
-│   │   │       │   ├── EmployeeListView.java         # Employee list UI
-│   │   │       │   ├── AddEmployeeForm.java          # Add employee form
-│   │   │       │   ├── UpdateEmployeeForm.java       # Update employee form
-│   │   │       │   └── util/
-│   │   │       │       └── DialogUtil.java           # Dialog utilities
+│   │   │       ├── EmployeeManagementApp.java         # Main application entry point
+│   │   │       ├── config/                            # Configuration (Hibernate, etc.)
+│   │   │       ├── ui/                                # UI components (Dashboard, Forms, etc.)
+│   │   │       ├── service/                           # Business logic layer
+│   │   │       ├── repository/                        # Data access layer
+│   │   │       ├── entity/                            # JPA entities
+│   │   │       ├── exception/                         # Custom exceptions
+│   │   │       ├── builder/                           # Builder pattern implementations
+│   │   │       ├── dto/                               # Data transfer objects
 │   │   │       │
-│   │   │       └── recruitment/                      # Recruitment & ATS Module
+│   │   │       ├── recruitment/                       # Recruitment & ATS Module
+│   │   │       │   ├── entity/
+│   │   │       │   ├── repository/
+│   │   │       │   ├── service/
+│   │   │       │   ├── validation/                    # Chain of Responsibility validators
+│   │   │       │   ├── exception/
+│   │   │       │   └── ui/
+│   │   │       │
+│   │   │       ├── attendance/                        # Attendance Module
+│   │   │       │   ├── entity/
+│   │   │       │   ├── repository/
+│   │   │       │   ├── service/
+│   │   │       │   └── ui/
+│   │   │       │
+│   │   │       ├── leave/                             # Leave Management Module
+│   │   │       │   ├── entity/
+│   │   │       │   ├── repository/
+│   │   │       │   ├── service/
+│   │   │       │   └── ui/
+│   │   │       │
+│   │   │       ├── payroll/                           # Payroll Module
+│   │   │       │   ├── entity/
+│   │   │       │   ├── repository/
+│   │   │       │   ├── service/
+│   │   │       │   ├── ui/
+│   │   │       │   └── util/                          # SalaryConfigSingleton
+│   │   │       │
+│   │   │       ├── onboarding/                        # Onboarding Module
+│   │   │       │   ├── entity/
+│   │   │       │   ├── repository/
+│   │   │       │   ├── service/
+│   │   │       │   ├── command/                       # Command pattern implementations
+│   │   │       │   └── ui/
+│   │   │       │
+│   │   │       ├── benefits/                          # Benefits Administration Module
+│   │   │       │   ├── entity/
+│   │   │       │   ├── repository/
+│   │   │       │   ├── service/
+│   │   │       │   ├── adapter/                       # BenefitPlan, HealthPlanAdapter, InsurancePlanAdapter
+│   │   │       │   └── ui/
+│   │   │       │
+│   │   │       ├── performance/                       # Performance Management Module
+│   │   │       │   ├── entity/
+│   │   │       │   ├── repository/
+│   │   │       │   ├── service/                       # AppraisalServiceProxy for access control
+│   │   │       │   ├── proxy/                         # Proxy pattern implementations
+│   │   │       │   └── ui/
+│   │   │       │
+│   │   │       └── workforce/                         # Workforce Planning Module
 │   │   │           ├── entity/
-│   │   │           │   └── Candidate.java            # Candidate JPA entity (APPLIED, SHORTLISTED, etc.)
 │   │   │           ├── repository/
-│   │   │           │   ├── CandidateRepository.java       # Repository interface
-│   │   │           │   └── CandidateRepositoryImpl.java    # Hibernate implementation
 │   │   │           ├── service/
-│   │   │           │   ├── CandidateService.java         # Service interface
-│   │   │           │   └── CandidateServiceImpl.java      # Service implementation (validation chain, status transitions)
-│   │   │           ├── validation/
-│   │   │           │   ├── ValidationHandler.java        # Chain of Responsibility base
-│   │   │           │   ├── ContactInfoValidator.java     # Validates contact information
-│   │   │           │   ├── ResumeValidator.java          # Validates resume data
-│   │   │           │   └── DuplicateCheckHandler.java    # Checks for duplicate candidates
-│   │   │           ├── exception/
-│   │   │           │   └── CandidateDataIncompleteException.java  # Custom exception
 │   │   │           └── ui/
-│   │   │               ├── RecruitmentDashboardView.java  # Recruitment metrics dashboard
-│   │   │               ├── CandidateListView.java         # Candidate list with filters
-│   │   │               ├── AddCandidateForm.java          # Add candidate form
-│   │   │               ├── UpdateCandidateForm.java       # Update candidate form
-│   │   │               └── StatusUpdateForm.java          # Status update dropdown form
+│   │   │
 │   │   └── resources/
-│   │       └── logback.xml                  # Logging configuration
+│   │       ├── config.properties                      # Database credentials (gitignored)
+│   │       ├── logback.xml                            # Logging configuration
+│   │       └── schema.sql                             # Database schema
+│   │
 │   └── test/
-│       └── java/...
-├── pom.xml                                 # Maven configuration
-├── README.md                               # Project documentation (this file)
-└── logs/                                   # Application logs directory
+│       └── java/                                      # Unit tests
+│
+├── pom.xml                                            # Maven configuration
+├── README.md                                          # This file
+├── .gitignore                                         # Git ignore rules
+└── logs/                                              # Application logs directory
 ```
 
 ## Prerequisites
@@ -138,598 +175,228 @@ ooad-project/
 - MySQL 8.0 or higher
 - Git (optional, for cloning)
 
-## Quick Start (For New Developers)
+## Local Database Setup
 
-After cloning this repository:
-
-```bash
-# 1. Clone the repository
-git clone <repository-url>
-cd ooad-project
-
-# 2. Create MySQL database
-mysql -u root -p -e "CREATE DATABASE eims_db;"
-
-# 3. (Optional) Set database credentials via environment variables
-# If using non-default credentials, set these environment variables:
-export DB_URL="jdbc:mysql://localhost:3306/eims_db"
-export DB_USERNAME="your_mysql_username"
-export DB_PASSWORD="your_mysql_password"
-
-# If not set, defaults are: username=root, password=empty
-
-# 4. Build the project
-mvn clean install
-
-# 5. Run the application
-mvn exec:java -Dexec.mainClass="com.yourname.myapp.EmployeeManagementApp"
-
-# 6. On first run:
-# - Tables will be created automatically from SQL schema (src/main/resources/schema.sql)
-# - No manual SQL setup needed
-```
-
-**Important Notes**:
-- The application requires MySQL running with database `eims_db` created before startup
-- Database credentials use environment variables for security (no hardcoded passwords)
-- Default credentials: username=`root`, password=empty (localhost)
-- Change these for production deployments
-
-## Database Setup
+Follow these steps to configure database credentials and initialize the database for local development:
 
 ### Step 1: Create Database
 
-Open MySQL command line or MySQL Workbench and execute:
-
-```sql
-CREATE DATABASE eims_db;
-USE eims_db;
-```
-
-### Step 2: SQL-Based Schema Initialization
-
-The application uses **SQL files for schema creation** instead of Hibernate's auto-schema generation.
-
-When the application starts for the first time:
-1. DatabaseInitializer checks if tables exist in the database
-2. If tables don't exist, it automatically executes `src/main/resources/schema.sql`
-3. All required tables are created with proper relationships and indexes
-4. No manual SQL setup required - everything is automatic!
-
-**Advantages:**
-- Full control over table structure and indexes via SQL files
-- Consistent schema across all environments
-- Better performance through optimized indexes
-- Clear database migration path
-- No dependency on Hibernate's DDL generation
-
-**Tables Created Automatically:**
-- `employees` - Employee records
-- `candidate` - Recruitment candidates
-- `attendance_record` - Attendance tracking
-- `leave_request` - Leave request management
-- `leave_balance` - Employee leave balance
-- `benefit_enrollment` - Benefits enrollment
-- `claim` - Insurance claims
-- `payroll` - Payroll records
-- `appraisal` - Performance appraisals
-- `promotion` - Employee promotions
-- `workforce_plan` - Workforce planning
-- `onboarding_record` - Employee onboarding
-- `onboarding_activity_log` - Onboarding activity
-
-**Default values:**
-- **URL**: jdbc:mysql://localhost:3306/eims_db
-- **Username**: root
-- **Password**: (check HibernateUtil.java for default)
-
-### Step 3 (OPTIONAL): Manual Table Creation
-
-If you want to pre-create tables before running the application (instead of auto-initialization):
+Create the `hr_ooad` database in MySQL:
 
 ```bash
-# Linux/Mac
-mysql -u root -p eims_db < src/main/resources/schema.sql
-
-# Or use MySQL Workbench to run the schema.sql file
+mysql -u root -p -e "CREATE DATABASE hr_ooad;"
 ```
 
-Verify tables were created:
-```sql
-USE eims_db;
-SHOW TABLES;
-DESCRIBE employees;
-DESCRIBE candidate;
-```
+### Step 2: Create Configuration File
 
-## Building and Running
-
-### Option 1: Using Maven
+Create a `config.properties` file in `src/main/resources/` with your MySQL password:
 
 ```bash
-# Navigate to project directory
-cd ooad-project
-
-# Clean and build
-mvn clean package
-
-# Run the application
-mvn exec:java -Dexec.mainClass="com.yourname.myapp.EmployeeManagementApp"
-
-# Or run the generated JAR
-java -jar target/eims-desktop-1.0-SNAPSHOT.jar
+mkdir -p src/main/resources
+echo "db.password=YOUR_MYSQL_PASSWORD" > src/main/resources/config.properties
 ```
 
-### Option 2: IDE Execution
+Replace `YOUR_MYSQL_PASSWORD` with your actual MySQL root password.
 
-If using IntelliJ IDEA or Eclipse:
-1. Right-click on `EmployeeManagementApp.java`
-2. Select "Run 'EmployeeManagementApp.main()'"
+### Step 3: Verify Configuration
+
+The configuration file is automatically gitignored (see `.gitignore`) to prevent committing sensitive credentials. The application reads the database password from `src/main/resources/config.properties` using the key `db.password`. If this file is missing or the key is not found, the application falls back to the `DB_PASSWORD` environment variable.
+
+**Important**: Never commit `config.properties` to version control. It is listed in `.gitignore` for this reason.
+
+## Build & Run Instructions
+
+### Build the Project
+
+```bash
+mvn clean compile
+```
+
+### Run the Application
+
+Start the HR Management System application:
+
+```bash
+mvn clean compile exec:java -Dexec.mainClass="com.yourname.myapp.EmployeeManagementApp"
+```
+
+On first run, the application will automatically initialize the database schema from `schema.sql` and populate all required tables.
 
 ## Usage Guide
 
-### EMPLOYEE MANAGEMENT MODULE
+The application provides a tabbed or sidebar-based interface to access different HR modules. Select a module to manage the corresponding HR function.
 
-#### Dashboard View
-- Displays four key metrics:
-  - **Total Employees**: Total count of all employees in the system
-  - **Active Employees**: Count of employees with ACTIVE status
-  - **On Leave**: Count of employees on leave
-  - **New Joiners**: Count of employees who joined in the current month
+### Employee Information Management (EIMS)
+- **Dashboard**: View key metrics (total employees, active count, on-leave, new joiners)
+- **Employee List**: Search and filter employees by department or employment status
+- **Add Employee**: Create new employee with auto-generated ID (EMP-XXXXXXXX)
+- **Update/Delete**: Modify or remove employee records
 
-#### Employee List View
-- **Search**: Enter employee name to search in real-time
-- **Filter by Department**: Select a specific department to filter
-- **Filter by Status**: Filter employees by their employment status
-- **Clear Filters**: Reset all filters to view all employees
-- **Refresh**: Manually refresh the employee list
-- **Edit**: Select an employee and click Edit to modify details
-- **Delete**: Select an employee and click Delete to remove (requires confirmation)
+### Recruitment & ATS
+- **Recruitment Dashboard**: Monitor recruitment metrics and KPIs
+- **Candidate List**: Search candidates by name/contact; filter by status
+- **Add Candidate**: Create candidates with automated validation
+- **Status Updates**: Advance candidates through defined workflow stages
+- **Delete Candidate**: Remove candidate records
 
-#### Add Employee
-1. Click the "Add Employee" button in the sidebar
-2. Fill in all required fields:
-   - Employee Name
-   - Department (dropdown selector)
-   - Job Role (dropdown selector)
-   - Employment Status (defaults to ACTIVE)
-3. Click "Save" to create the employee
-4. An auto-generated Employee ID in format EMP-XXXXXXXX will be assigned
+### Attendance & Leave
+- **Check-In/Check-Out**: Record attendance with timestamps
+- **Leave Requests**: Submit and track leave requests
+- **Manager Approval**: Approve or reject pending requests
+- **Leave Balance**: Monitor available leave per employee
 
-#### Update Employee
-1. In Employee List, select an employee
-2. Click "Edit" button
-3. Modify the desired fields
-4. Click "Update" to save changes
+### Payroll Management
+- **Payroll Dashboard**: View payroll operations overview
+- **Generate Payslips**: Create payslips for employees
+- **Transfer Confirmation**: Approve salary transfers
+- **Salary Configuration**: Role-based configuration for MANAGER and ADMIN
 
-#### Delete Employee
-1. In Employee List, select an employee
-2. Click "Delete" button
-3. Confirm deletion in the dialog
-4. Employee will be removed from the system
+### Onboarding Management
+- **Onboarding Dashboard**: Track progress for new hires
+- **Task Tracking**: Manage and monitor onboarding tasks
+- **Activity Log**: Review onboarding history
+- **Command Actions**: Execute and undo onboarding commands
 
----
+### Benefits Administration
+- **Benefits Enrollment**: Manage employee benefit enrollments
+- **Claims Processing**: Track and process insurance claims
+- **Unified Plan Access**: Access health and insurance plans through unified interface
 
-### RECRUITMENT & ATS MODULE
+### Performance Management
+- **Appraisals**: Record employee appraisals (MANAGER/ADMIN only)
+- **Promotions**: Track employee promotion history
+- **Access Control**: Restricted to authorized roles
 
-#### Recruitment Dashboard
-1. Click "Recruitment Dashboard" in the sidebar
-2. View key metrics in colored stat cards:
-   - **Total Applications**: All candidates received
-   - **Shortlisted**: Candidates who passed initial screening
-   - **Selected**: Candidates who passed all rounds
-   - **Shortlist Rate**: Percentage of applicants shortlisted
-   - **Selection Rate**: Percentage of shortlisted candidates selected
-   - **Open Positions**: Current open job positions
-
-#### Candidate List View
-1. Click "Candidate List" in the sidebar
-2. **Search**: Enter candidate name or contact to search
-3. **Filter by Status**: Select status from dropdown:
-   - ALL: Show all candidates
-   - APPLIED: Initial applicants
-   - SHORTLISTED: Candidates passed screening
-   - INTERVIEW: Candidates in interview process
-   - SELECTED: Final selected candidates
-   - REJECTED: Rejected candidates
-4. **Refresh**: Update list to see latest changes
-5. **Clear Filters**: Reset all filters to view all candidates
-
-#### Add Candidate
-1. Click "Add Candidate" button in Candidate List
-2. Fill in required fields:
-   - Candidate Name (required)
-   - Contact Info (required, email/phone)
-   - Resume Data (required, URL or text)
-   - Interview Score (optional, 0-100)
-3. **Validation Chain** automatically checks:
-   - Contact information validity
-   - Resume data completeness
-   - No duplicate candidates
-4. Click "Save" to add candidate
-5. Auto-generated Candidate ID (CND-001, CND-002, etc.) will be assigned
-6. Status automatically set to APPLIED
-
-#### Update Candidate
-1. In Candidate List, select a candidate
-2. Click "Update" button
-3. Modify candidate details (name, contact, resume, interview score)
-4. Validation chain executes before saving
-5. Click "Save" to update
-
-#### Update Candidate Status
-1. In Candidate List, select a candidate
-2. Click "Update Status" button
-3. A dropdown shows all allowed transitions based on current status:
-   - **From APPLIED**: Can select SHORTLISTED or REJECTED
-   - **From SHORTLISTED**: Can select INTERVIEW, SELECTED, or REJECTED
-   - **From INTERVIEW**: Can select SELECTED or REJECTED
-   - **From SELECTED**: Can select REJECTED only
-   - **From REJECTED**: No transitions allowed
-4. Select new status and click "Update"
-5. Status transition validation ensures business rules are enforced
-
-#### Delete Candidate
-1. In Candidate List, select a candidate
-2. Click "Delete" button
-3. Confirm deletion in the dialog
-4. Candidate will be removed from the system
+### Workforce Planning & Budgeting
+- **Workforce Plans**: Create workforce projections
+- **Budget Forecasting**: View quarterly budget and cost projections
+- **Report Export**: Export planning data for analysis
 
 ## Design Patterns Used
 
-### 1. Builder Pattern (Employee Module)
+### 1. Builder Pattern
 **Purpose**: Encapsulate complex object construction with a fluent API
+**Implementation**: Employee object construction with optional fields
+**Location**: `builder/` package
 
-**Implementation**: `EmployeeBuilder` class provides a flexible way to construct Employee objects with optional fields
+### 2. Singleton Pattern
+**Purpose**: Ensure only one instance of a class exists
+**Implementation**: `SalaryConfigSingleton` for centralized salary configuration
+**Location**: `payroll/util/SalaryConfigSingleton.java`
 
-**Example**:
-```java
-Employee employee = new EmployeeBuilder()
-    .withEmployeeName("John Doe")
-    .withDepartment("IT")
-    .withJobRole("Developer")
-    .withEmploymentStatus(EmploymentStatus.ACTIVE)
-    .build();
-```
+### 3. Adapter Pattern
+**Purpose**: Convert interface of a class into another interface clients expect
+**Implementation**: `BenefitPlan` with `HealthPlanAdapter` and `InsurancePlanAdapter`
+**Location**: `benefits/adapter/` package
+**Use Case**: Unifying different benefit plan types through a common interface
 
-### 2. Chain of Responsibility Pattern (Recruitment Module - Validation)
-**Purpose**: Process candidate data through a series of validators in a chain
+### 4. Proxy Pattern
+**Purpose**: Provide a surrogate or placeholder for another object
+**Implementation**: `AppraisalServiceProxy` for access control
+**Location**: `performance/proxy/` package
+**Use Case**: Restrict appraisal access to MANAGER and ADMIN roles only
 
-**Implementation**: Three validators executed in sequence before candidate is saved:
-1. **ContactInfoValidator**: Validates non-empty contact information
-2. **ResumeValidator**: Validates non-empty resume data
-3. **DuplicateCheckHandler**: Checks for duplicate candidates in database
+### 5. Facade Pattern
+**Purpose**: Provide unified interface to a set of interfaces in a subsystem
+**Implementation**: Service layer acts as Facade to repository and entity layers
+**Benefit**: Simplifies client interactions with complex subsystems
 
-**Flow**:
-```
-ContactInfoValidator → ResumeValidator → DuplicateCheckHandler
-         ↓                    ↓                      ↓
-    Validates            Validates            Checks DB
-    Contact Info         Resume Data          for Duplicates
-```
+### 6. Chain of Responsibility Pattern
+**Purpose**: Pass requests along a chain of handlers
+**Implementation**: Candidate validation pipeline
+**Location**: `recruitment/validation/` package
+**Validators in Sequence**:
+   1. `ContactInfoValidator`: Validate contact information
+   2. `ResumeValidator`: Validate resume data
+   3. `DuplicateCheckHandler`: Check for duplicate candidates
 
-**Exception Handling**: If any validator fails, `CandidateDataIncompleteException` is thrown with descriptive message
-
-### 3. Repository Pattern (Both Modules)
-**Purpose**: Abstract data access logic from business logic
-
-**Implementation**: 
-- `EmployeeRepository` interface + `EmployeeRepositoryImpl` (Hibernate-based)
-- `CandidateRepository` interface + `CandidateRepositoryImpl` (Hibernate-based)
-
-**Benefits**: Easy to swap implementations, unit testing, consistent data access
-
-### 4. Service Layer Pattern (Both Modules)
-**Purpose**: Centralize business logic and validation
-
-**Implementation**:
-- `EmployeeService`: Manages employee operations
-- `CandidateService`: Manages candidate operations with validation chain orchestration
-
-**Benefits**: Separation of concerns, centralized validation, reusable business logic
-
-### 5. State Transition Pattern (Recruitment Module - Status Management)
-**Purpose**: Enforce valid state transitions for candidate status
-
-**Implementation**: Static map of allowed transitions in `CandidateServiceImpl`:
-```java
-ApplicationStatus.APPLIED → [SHORTLISTED, REJECTED]
-ApplicationStatus.SHORTLISTED → [INTERVIEW, SELECTED, REJECTED]
-ApplicationStatus.INTERVIEW → [SELECTED, REJECTED]
-ApplicationStatus.SELECTED → [REJECTED]
-ApplicationStatus.REJECTED → []
-```
-
-**Validation**: `updateStatus()` method checks if transition is allowed, throws `IllegalStateException` if invalid
-
----
-
-## Database Schema
-
-### Employee Table
-```sql
-CREATE TABLE employee (
-  employee_id VARCHAR(20) PRIMARY KEY,
-  employee_name VARCHAR(100) NOT NULL,
-  department VARCHAR(50),
-  job_role VARCHAR(50),
-  employment_status VARCHAR(20),
-  joining_date DATE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-```
-
-### Candidate Table
-```sql
-CREATE TABLE candidate (
-  candidate_id VARCHAR(20) PRIMARY KEY,
-  candidate_name VARCHAR(100) NOT NULL,
-  contact_info VARCHAR(100) NOT NULL,
-  resume_data LONGTEXT NOT NULL,
-  interview_score DOUBLE,
-  application_status VARCHAR(20) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-```
-
-### Tables Auto-Created
-Tables are automatically created on first application run due to Hibernate configuration:
-```xml
-<property name="hibernate.hbm2ddl.auto">update</property>
-```
-
----
-
-## Class Documentation
-
-### Entity Classes
-
-#### Employee
-- **Location**: `entity/Employee.java`
-- **JPA Mappings**: @Entity, @Table(name="employee")
-- **Fields**:
-  - `employeeId` (String, Primary Key): Auto-generated format EMP-XXXXXXXX
-  - `employeeName` (String): Required, max 100 chars
-  - `department` (String): Department classification
-  - `jobRole` (String): Job position
-  - `employmentStatus` (Enum): ACTIVE, INACTIVE, ON_LEAVE
-  - `joiningDate` (Date): Employee joining date
-  - `createdAt`, `updatedAt`: Audit timestamps
-- **Methods**: Getters, setters, toString()
-
-#### EmploymentStatus
-- **Location**: `entity/EmploymentStatus.java`
-- **Values**: ACTIVE, INACTIVE, ON_LEAVE
-- **Purpose**: Enum for employee status tracking
-
-#### Candidate
-- **Location**: `recruitment/entity/Candidate.java`
-- **JPA Mappings**: @Entity, @Table(name="candidate")
-- **Fields**:
-  - `candidateId` (String, Primary Key): Auto-generated format CND-001, CND-002, etc.
-  - `candidateName` (String): Required, max 100 chars
-  - `contactInfo` (String): Required, email/phone, max 100 chars
-  - `resumeData` (String): Required, resume content/URL
-  - `interviewScore` (Double): Interview performance score (0-100)
-  - `applicationStatus` (Enum): APPLIED, SHORTLISTED, INTERVIEW, SELECTED, REJECTED
-- **Methods**: Getters, setters, toString()
-
-#### ApplicationStatus
-- **Location**: `recruitment/entity/Candidate.java` (nested enum)
-- **Values**: APPLIED, SHORTLISTED, INTERVIEW, SELECTED, REJECTED
-- **Purpose**: Candidate workflow status tracking
-
-### Service Layer
-
-#### EmployeeService
-- **Location**: `service/EmployeeService.java`
-- **Key Methods**:
-  - `getAllEmployees()`: List all employees
-  - `getAllEmployees(String dept, String status)`: Get employees with filters
-  - `getEmployeeById(String id)`: Fetch specific employee
-  - `createEmployee(EmployeeRequest dto)`: Create new employee (uses Builder pattern)
-  - `updateEmployee(String id, EmployeeRequest dto)`: Update employee
-  - `deleteEmployee(String id)`: Delete employee with validation
-  - `getDashboardStats()`: Get dashboard statistics
-  - `searchByName(String name)`: Search employees by name
-  - `getAllDepartments()`: Get unique departments
-
-#### CandidateService
-- **Location**: `recruitment/service/CandidateService.java`
-- **Key Methods**:
-  - `getAllCandidates(String status)`: Get candidates, optionally filtered by status
-  - `getCandidateById(String id)`: Fetch specific candidate
-  - `createCandidate(Candidate)`: Create candidate (executes validation chain)
-  - `updateCandidate(String id, Candidate)`: Update candidate details
-  - `updateStatus(String id, String newStatus)`: Update status with transition validation
-  - `deleteCandidate(String id)`: Delete candidate
-  - `getRecruitmentStats()`: Get recruitment dashboard statistics
-- **Recruitment Stats Return Values**:
-  - `applicationsReceived`: Total candidates
-  - `shortlistedCount`: Candidates in SHORTLISTED status
-  - `selectedCount`: Candidates in SELECTED status
-  - `openPositions`: Available job openings
-  - `hiringForecast`: Estimated hires based on current pipeline
-
-### Repository Layer
-
-#### EmployeeRepository & EmployeeRepositoryImpl
-- **Location**: `repository/EmployeeRepository.java` (interface), `repository/EmployeeRepositoryImpl.java` (implementation)
-- **Custom Methods**:
-  - `save(Employee)`: Insert/update employee
-  - `findById(String id)`: Find by ID
-  - `findAll()`: Get all employees
-  - `findByDepartment(String)`: Filter by department
-  - `findByEmploymentStatus(EmploymentStatus)`: Filter by status
-  - `findByDepartmentAndEmploymentStatus()`: Combined filter
-  - `findByEmployeeNameContains(String)`: Search by name
-  - `deleteById(String)`: Delete employee
-  - `existsById(String)`: Check existence
-  - `count()`: Total count
-  - `countByEmploymentStatus()`: Count by status
-- **Implementation**: Hibernate Session + Transaction management
-
-#### CandidateRepository & CandidateRepositoryImpl
-- **Location**: `recruitment/repository/CandidateRepository.java` (interface), `recruitment/repository/CandidateRepositoryImpl.java` (implementation)
-- **Custom Methods**:
-  - `save(Candidate)`: Insert/update candidate
-  - `findById(String id)`: Find by ID
-  - `findAll()`: Get all candidates
-  - `findAllByStatus(String status)`: Filter by status (handles null for "ALL")
-  - `findByContactInfo(String)`: Search by contact
-  - `update(Candidate)`: Update candidate
-  - `delete(String id)`: Delete candidate
-  - `countByStatus(String)`: Count by status
-  - `countAll()`: Total count
-- **Implementation**: Hibernate Session + Transaction management + proper error handling
-
-### Validation Chain (Recruitment Module)
-
-#### ValidationHandler (Abstract Base)
-- **Location**: `recruitment/validation/ValidationHandler.java`
-- **Pattern**: Chain of Responsibility abstract class
-- **Methods**:
-  - `setNext(ValidationHandler)`: Set next validator in chain
-  - `validate(Candidate)`: Abstract method for validation logic
-  - Protected `next` field: Reference to next handler
-
-#### ContactInfoValidator
-- **Location**: `recruitment/validation/ContactInfoValidator.java`
-- **Validation**: Ensures contact info is not null/empty
-- **Error**: Throws `CandidateDataIncompleteException` if invalid
-- **Next**: Passes to ResumeValidator
-
-#### ResumeValidator
-- **Location**: `recruitment/validation/ResumeValidator.java`
-- **Validation**: Ensures resume data is not null/empty
-- **Error**: Throws `CandidateDataIncompleteException` if invalid
-- **Next**: Passes to DuplicateCheckHandler
-
-#### DuplicateCheckHandler
-- **Location**: `recruitment/validation/DuplicateCheckHandler.java`
-- **Validation**: Checks if candidate already exists in database (by contact info)
-- **Logic**: 
-  - For new candidates (candidateId == null): Check for duplicate by contact
-  - For existing candidates: Skip duplicate check to allow updates
-- **Error**: Throws `CandidateDataIncompleteException` if duplicate found
-- **Next**: None (terminal handler)
-
-### Exception Classes
-
-#### EmployeeNotFoundException
-- **Location**: `exception/EmployeeNotFoundException.java`
-- **When Thrown**: When employee is not found in database
-- **Handling**: Caught in service layer, displayed as error dialog
-
-#### DuplicateEmployeeIdException
-- **Location**: `exception/DuplicateEmployeeIdException.java`
-- **When Thrown**: When attempting to create employee with duplicate ID
-- **Handling**: Caught in service layer, displayed as error dialog
-
-#### CandidateDataIncompleteException
-- **Location**: `recruitment/exception/CandidateDataIncompleteException.java`
-- **When Thrown**: During validation chain if candidate data is incomplete
-- **Handling**: Caught in service layer, displayed as error dialog to user
-- **Triggers**: Invalid contact info, empty resume, duplicate candidate
-
-### UI Components
-
-#### Employee Management
-- **DashboardView.java**: Statistics dashboard with 4 metric cards
-- **EmployeeListView.java**: Table-based list with search and filters
-- **AddEmployeeForm.java**: Form dialog to create new employee
-- **UpdateEmployeeForm.java**: Form dialog to edit employee
-- **DialogUtil.java**: Reusable dialog utilities
-
-#### Recruitment Management
-- **RecruitmentDashboardView.java**: Statistics dashboard with 6 metric cards (colored borders)
-- **CandidateListView.java**: Table-based list with search and status filter
-- **AddCandidateForm.java**: Form dialog to create new candidate (with validation feedback)
-- **UpdateCandidateForm.java**: Form dialog to edit candidate details
-- **StatusUpdateForm.java**: Dialog with dropdown for status transitions
-
-#### Main Application
-- **EmployeeManagementApp.java**: Main Swing window with sidebar navigation
-- **MainWindow**: BorderLayout-based UI with 7 sidebar buttons
-- **Sidebar Navigation**:
-  1. Dashboard (Employee)
-  2. Employee List
-  3. Recruitment Dashboard
-  4. Candidate List
-  5. Logout/Exit (if applicable)
-
-## Error Handling
-
-The application implements comprehensive error handling:
-- **Validation Errors**: Validated at form level before submission
-- **Business Logic Errors**: Caught in service layer with specific exception types
-- **Database Errors**: Caught and logged with user-friendly messages
-- **UI Dialogs**: All errors displayed as information/warning/error dialogs
-
-## Logging
-
-Logs are configured using Logback:
-- **Console**: DEBUG messages displayed in console
-- **File**: INFO level messages saved to `logs/eims.log`
-- **Rolling**: Log files rotate daily or at 10MB
-
-Access logs at: `logs/eims.log`
-
-## Configuration
-
-### Database Configuration
-Located in: `src/main/java/com/yourname/myapp/config/HibernateUtil.java`
-
-Key settings:
-- Driver: com.mysql.cj.jdbc.Driver
-- Dialect: MySQL8Dialect
-- Auto DDL: Update (auto-creates/updates schema)
-- Show SQL: true (for debugging)
-- Batch Size: 10 (for performance)
-
-### Logging Configuration
-Located in: `src/main/resources/logback.xml`
+### 7. Command Pattern
+**Purpose**: Encapsulate a request as an object
+**Implementation**: Onboarding actions with execution history
+**Location**: `onboarding/command/` package
+**Commands**:
+   - `ApproveOnboardingCommand`
+   - `UpdateBackgroundCheckCommand`
+   - `UpdateDocumentVerificationCommand`
+   - `CommandInvoker`: Executes and maintains history
 
 ## Troubleshooting
 
-### Database Connection Issues
-- Ensure MySQL is running
-- Check database credentials in HibernateUtil.java
-- Verify database exists (eims_db)
-- Check MySQL port (default: 3306)
+### Access Denied / Authentication Issues
+- **Issue**: "Access denied for user 'root'@'localhost'"
+- **Solution**: Verify MySQL credentials in `src/main/resources/config.properties`. Ensure `db.password` matches your MySQL root password.
 
-### JavaFX Not Starting
-- Ensure Java 11+ is installed
-- Verify JavaFX libraries are in classpath (Maven handles this)
-- Check for display server (on Linux, may need DISPLAY variable)
+### Missing Tables / Schema Initialization Issues
+- **Issue**: "Table 'hr_ooad.employee' doesn't exist"
+- **Solution**: Ensure `schema.sql` exists in `src/main/resources/`. Run the application to trigger automatic schema initialization on first startup.
 
-### Employee Not Found Error
-- Verify employee ID exists
-- Check if employee was deleted
-- Reload the employee list
+### MySQL Connection Refused
+- **Issue**: "Communications link failure" or "Connect refused"
+- **Solution**:
+  1. Verify MySQL service is running: `mysql --version`
+  2. Check MySQL port (default: 3306)
+  3. Restart MySQL service if needed
+
+### Missing config.properties File
+- **Issue**: "Property 'db.password' not found"
+- **Solution**: Create `src/main/resources/config.properties` with `db.password=YOUR_PASSWORD` or set `DB_PASSWORD` environment variable.
+
+### Logging / File Permission Issues
+- **Issue**: Cannot write to `logs/` directory
+- **Solution**: Ensure `logs/` directory exists and has write permissions:
+  ```bash
+  mkdir -p logs
+  chmod 755 logs
+  ```
+
+## Logging
+
+The application uses **Logback** for comprehensive logging:
+
+- **Configuration**: `src/main/resources/logback.xml`
+- **Log File**: `logs/eims.log`
+- **Log Levels**:
+  - DEBUG: Development-level details (console only)
+  - INFO: Application events (file and console)
+  - WARN: Warning messages
+  - ERROR: Error messages with stack traces
+
+**Log File Features**:
+- Automatic daily rollover
+- 10MB size-based rollover
+- 30-day retention policy
+- Separate error logging when enabled
+
+Access logs at: `logs/eims.log`
 
 ## Future Enhancements
 
-- Export employee data to Excel/PDF
-- Email notifications for employee updates
-- Authentication and user roles
-- Attendance tracking
-- Salary management
-- Performance reviews
-- Advanced reporting and analytics
-- Data backup and restore functionality
+- **Export Functionality**: Export employee data and reports to Excel/PDF
+- **Email Notifications**: Automated email alerts for leave approvals, performance reviews
+- **Authentication & Authorization**: User login with role-based access control
+- **Advanced Analytics**: Dashboards with charts and trend analysis
+- **Data Backup & Restore**: Automated database backups
+- **Multi-Tenant Support**: Support for multiple organizations
+- **Mobile App Integration**: REST API for mobile app connectivity
+- **Audit Trail**: Complete audit log of all user actions
+- **Performance Optimization**: Database query optimization and caching
 
 ## License
 
 This project is created for educational purposes.
 
-## Support
+## Acknowledgments
 
-For issues or questions, check the error logs in `logs/eims.log` for detailed error messages.
+This HR Management System was developed as part of an academic project with the following contributors:
+
+- **Bhanavi D**
+- **Dhrithi Kiran**
+- **Diya Saigal**
+- **Harshini Somangali**
+
+**Project Guide**: M S Anand (PESU Faculty)
 
 ---
 
 **Version**: 1.0  
-**Last Updated**: April 2026
+**Last Updated**: June 2026
