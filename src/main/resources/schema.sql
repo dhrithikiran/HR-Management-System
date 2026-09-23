@@ -204,15 +204,12 @@ COMMENT='Workforce planning and hiring forecasts per department/quarter';
 
 CREATE TABLE IF NOT EXISTS onboarding_record (
     onboarding_id VARCHAR(255) PRIMARY KEY COMMENT 'Onboarding record ID',
-    assigned_employee_id VARCHAR(20) NOT NULL COMMENT 'FK to employees.employee_id',
+    assigned_employee_id VARCHAR(20) NOT NULL COMMENT 'Candidate/Employee identifier',
     employee_name VARCHAR(255) NOT NULL COMMENT 'New employee name',
     background_check_status VARCHAR(255) NOT NULL DEFAULT 'PENDING' COMMENT 'PENDING, APPROVED, REJECTED',
     document_verification_status VARCHAR(255) NOT NULL DEFAULT 'PENDING' COMMENT 'PENDING, VERIFIED, REJECTED',
     verified_record BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'Is record verified',
     pipeline_status VARCHAR(255) NOT NULL DEFAULT 'INITIATED' COMMENT 'Onboarding pipeline status',
-    CONSTRAINT fk_onboarding_employee
-        FOREIGN KEY (assigned_employee_id) REFERENCES employees(employee_id)
-        ON DELETE CASCADE ON UPDATE CASCADE,
     INDEX idx_onboarding_employee (assigned_employee_id),
     INDEX idx_onboarding_status (pipeline_status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci

@@ -4,6 +4,7 @@ A comprehensive desktop application for managing HR operations including employe
 
 ## Table of Contents
 
+- [Distributed Microservices Architecture](#distributed-microservices-architecture)
 - [Features](#features)
 - [Technology Stack](#technology-stack)
 - [Project Structure](#project-structure)
@@ -17,6 +18,54 @@ A comprehensive desktop application for managing HR operations including employe
 - [Future Enhancements](#future-enhancements)
 - [License](#license)
 - [Acknowledgments](#acknowledgments)
+
+## Distributed Microservices Architecture
+
+The system features independently runnable distributed microservices for **Recruitment** and **Onboarding** communicating via HTTP/REST:
+
+```
++-------------------------------------------------------------------------------+
+|                       DISTRIBUTED MICROSERVICES TOPOLOGY                      |
++-------------------------------------------------------------------------------+
+
+                      [ Client / Smoke Test Script ]
+                                    |
+                                    | HTTP REST (Port 8081)
+                                    v
+                      +-----------------------------+
+                      |   Recruitment Microservice  |
+                      |         (Port 8081)         |
+                      +-----------------------------+
+                                    |
+                                    | HTTP POST /onboarding (Port 8082)
+                                    | JSON: { candidateId, candidateName }
+                                    v
+                      +-----------------------------+
+                      |    Onboarding Microservice  |
+                      |         (Port 8082)         |
+                      +-----------------------------+
+                           |                   |
+                           v                   v
+                   [ candidate table ]   [ onboarding_record table ]
+```
+
+### Key Microservices Features
+1. **Recruitment Microservice (`:8081`)**: Standalone process managing candidate lifecycles, applications, status transitions, and health monitoring (`GET /health`).
+2. **Onboarding Microservice (`:8082`)**: Standalone process managing onboarding records, verification workflows, and pipeline stages with strict boundary isolation (`GET /health`).
+3. **Inter-Service REST Communication**: When a candidate reaches `SELECTED` status, Recruitment Service triggers an HTTP `POST` to `http://localhost:8082/onboarding` via standard `java.net.http.HttpClient` with full fault tolerance (HTTP 503 handling upon dependency outage).
+
+### Quick Service Launch
+Before running the services, export your MySQL password:
+```bash
+export DB_PASSWORD="your_mysql_password"
+```
+
+* Run Recruitment Service: `./run-recruitment-service.sh`
+* Run Onboarding Service: `./run-onboarding-service.sh`
+* Run All in Background: `./run-all-services.sh`
+* Run Complete Smoke Test: `./smoke-test.sh`
+
+Detailed architectural breakdown is documented in [MICROSERVICES_ARCHITECTURE.md](MICROSERVICES_ARCHITECTURE.md).
 
 ## Features
 

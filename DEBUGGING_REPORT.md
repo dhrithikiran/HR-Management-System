@@ -61,7 +61,7 @@ db.url=jdbc:mysql://localhost:3306/hr_ooad
 #### Fix 1.3: Verified Database Creation
 Created the `hr_ooad` database using:
 ```bash
-mysql -u root -p'Mi8105119@!!@' -e "CREATE DATABASE IF NOT EXISTS hr_ooad;"
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS hr_ooad;"
 ```
 
 ### Result

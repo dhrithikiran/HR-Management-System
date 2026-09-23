@@ -13,5 +13,9 @@ target/
 .DS_Store
 Thumbs.db
 
-# Sensitive Configuration
+# Sensitive Configuration & Credentials
 src/main/resources/config.properties
+*.properties
+.env
+*.env
+.env.*
